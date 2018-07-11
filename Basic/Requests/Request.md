@@ -48,11 +48,15 @@ submenus:
         link: /Laravel/Basic/Logging
 ---
 
-# Request 엑세스 하기
+## Request 엑세스 하기
 ---
 
-의존성 주입을 통해서 현재 HTTP request의 인스턴스를 획득하기 위해서는 컨트롤러 메소드에서 Illuminate\Http\Request 클래스를 타입힌트해야 합니다. 유입된 request의 인스턴스는 서비스 컨테이너에 의해서 자동으로 주입될 것입니다.
+컨트롤러에서 요청된 HTTP `request`의 인스턴스를 얻기 위해서는 의존성 주입이 필요합니다. 의존성 주입을 할 경우 `Illuminate\Http\Request` 클래스를 타입 힌트로 설정할 수 있습니다.
 
+`request` 인스턴스는 서비스 컨테이너에 의해서 자동으로 의존성 주입이 처리될 것입니다.
+
+
+다음은 의존성 주입의 예제 입니다:
 ```php
 <?php
 
@@ -77,16 +81,21 @@ class UserController extends Controller
 }
 ```
 
+<br>
+
 ## 의존성 주입 & 라우트 파라미터
 ---
 
-만약 컨트롤러 메소드에서 라우트 파라미터로 부터 입력값을 받아야 한다면, 다른 의존성을 지정한 뒤에 라우트 파라미터를 나열해야 합니다. 예를 들어 라우트는 다음과 같이 정의될 수 있습니다:
+컨트롤러의 어떤 매소드가 라우트에서 치리된 파라미터값을 필요로 할 때가 있습니다. 이런경우 다른 의존성을 지정한 후에 라우트 파라미터를 나열해야 만 합니다. 
+
+예를 들어 라우트에서 다음과 같이 정의가 되어 있다고 생각해 봅니다:
 
 ```php
 Route::put('user/{id}', 'UserController@update');
 ```
 
-다음과 같이 컨트롤러 메소드를 정의하면 Illuminate\Http\Request를 타입힌트하여 라우트 파라미터 id에 접근할 수 있습니다:
+위와 같이 라우터 정의에 대해서, 컨트롤러의 메소드는 다음과 같이 정의 할 수 있습니다.
+`Illuminate\Http\Request`를 타입 힌트하여 라우트 파라미터 id에 접근할 수 있습니다:
 
 ```php
 <?php
@@ -111,10 +120,14 @@ class UserController extends Controller
 }
 ```
 
+<br>
+
 ## 라우트 클로저를 통해서 Request 엑세스하기
 ---
 
-또한 라우트 클로저에서도 Illuminate\Http\Request 클래스를 타입힌트 할 수 있습니다. 서비스 컨테이너는 클로저가 실행될 때 자동으로 유입된 request 를 주입할 것입니다:
+라우트를 설정할때 같이 정의되는 클로저에서  `Illuminate\Http\Request` 클래스를 타입 힌트 정의 할 수 있습니다. 
+
+서비스 컨테이너는 클로저 함수가 실행될 때 자동으로 유입된 `request` 를 의존성 주입을 하게 됩니다:
 
 ```php
 use Illuminate\Http\Request;
@@ -124,21 +137,30 @@ Route::get('/', function (Request $request) {
 });
 ```
 
+위의 코드는 라우터 설정에서 의존성 주입을 설정합니다.
+
+<br>
+
 ## Request 경로 & 메소드
 ---
 
-Illuminate\Http\Request 인스턴스는 애플리케이션의 HTTP request를 검사할 수 있는 다양한 메소드를 제공하며 Symfony\Component\HttpFoundation\Request 클래스를 상속 받고 있습니다. 몇가지 가장 중요한 메소드를 알아보겠습니다:
+`Illuminate\Http\Request` 인스턴스는 애플리케이션의 HTTP `request`를 검사할 수 있는 다양한 메소드를 제공합니다.
+이는 `Symfony\Component\HttpFoundation\Request` 클래스를 상속 받고 있습니다. 
 
-## Request 경로 조회하기
+이와 관련된 몇가지 중요한 메소드에 대해서 알아보겠습니다:
+
+### Request 경로 조회하기
 ---
 
-path 메소드는 request의 경로정보를 반환합니다. 따라서 들어오는 request가 http://domain.com/foo/bar를 대상으로 한다면 path 메소드는 foo/bar를 반환합니다:
+`path()` 메소드는 `request`의 경로 정보를 반환합니다. 
+HTTP 요청처리가 `http://domain.com/foo/bar`와 같다면 `path` 메소드는 도메인 이후의 `foo/bar`를 반환 하게 됩니다:
 
 ```php
 $uri = $request->path();
 ```
 
-is 메소드는 들어오는 request가 특정 패턴에 상응한다는 것을 확인할 수 있게 해줍니다. 이 메소드를 활용할 때 * 기호를 와일드카드로 쓸 수 있습니다:
+`is()` 메소드는 요청된 `request`에 대해서 특정 패턴을 확인할 수 있습니다. 
+이 메소드를 이용하면 * 기호를 와일드카드로 사용 할 수 있습니다:
 
 ```php
 if ($request->is('admin/*')) {
@@ -146,9 +168,13 @@ if ($request->is('admin/*')) {
 }
 ```
 
-## Request URI 조회하기
+<br>
+
+### Request URI 조회하기
 ---
-유입되는 request 의 전체 URL을 조회하기 위해서 url 또는 fullUrl 메소드를 사용할 수 있습니다. url 메소드는 쿼리 스트링 없는 URL을, fullUrl 은 쿼리 스트링을 포함한 URL을 반환합니다:
+
+유입되는 `request` 의 전체 URL을 조회하기 위해서 url 또는 fullUrl 메소드를 사용할 수 있습니다. 
+url 메소드는 쿼리 스트링 없는 URL을, fullUrl 은 쿼리 스트링을 포함한 URL을 반환합니다:
 
 ```php
 // Without Query String...
@@ -158,7 +184,7 @@ $url = $request->url();
 $url = $request->fullUrl();
 ```
 
-## Request HTTP 메소드(verb) 조회하기
+### Request HTTP 메소드(verb) 조회하기
 ---
 method 메소드는 request에 대해 HTTP 메소드를 반환합니다. HTTP 메소드가 특정 문자열에 대응하는 것을 확인하기 위해 isMethod 메소드를 사용할 수 있습니다:
 
@@ -169,6 +195,7 @@ if ($request->isMethod('post')) {
     //
 }
 ```
+<br>
 
 ## PSR-7 Requests
 ---

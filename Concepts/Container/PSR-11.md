@@ -30,8 +30,11 @@ submenus:
         link: /Laravel/Concepts/Container/PSR-11
 ---
 
+
 ## PSR-11
-라라벨의 서비스 컨테이너는 PSR-11 인터페이스를 구현합니다. 따라서, PSR-11 인터페이스를 타입 힌트하여 라라벨의 컨테이너 인스턴스에 접근이 가능합니다.
+---
+
+라라벨의 서비스 컨테이너는 PSR-11 인터페이스를 따르고 있습니다. 따라서, PSR-11 인터페이스를 통하여  라라벨의 컨테이너에 접근이 가능합니다.
 
 ```php
 use Psr\Container\ContainerInterface;

@@ -48,18 +48,28 @@ submenus:
         link: /Laravel/Basic/Logging
 ---
 
-## 입력값 조회하기
+## Request 입력값 조회하기
 ---
 
+요청된 `request`의 값을 조회할 수 있습니다. 이와 관련된 몇개의 메소드를 제공합니다.
+
+<br>
+
 ### 모든 입력값 조회하기
-all 메소드를 사용하여 모든 입력데이터를 배열 로 조회할 수 있습니다.
+---
+
+`all()` 메소드는 모든 입력데이터를 배열갑 형태로 조회할 수 있습니다.
 
 ```php
 $input = $request->all();
 ```
 
+<br>
+
 ## 입력값 조회하기
-몇 개의 단순한 메소드들을 사용하면 어떤 HTTP verb 가 request 에 사용되었는지에 대한 걱정없이 Illuminate\Http\Request 인스턴스에서 모든 사용자 입력에 접근할 수 있습니다. HTTP verb에 관계없이 input 메서드는 사용자 입력을 조회하는데 사용됩니다:
+---
+
+몇 개의 단순한 메소드들을 사용하면 어떤 HTTP verb 가 `request` 에 사용되었는지에 대한 걱정없이 `Illuminate\Http\Request` 인스턴스에서 모든 사용자 입력에 접근할 수 있습니다. HTTP verb에 관계없이 input 메서드는 사용자 입력을 조회하는데 사용됩니다:
 
 ```php
 $name = $request->input('name');
@@ -78,6 +88,8 @@ $name = $request->input('products.0.name');
 
 $names = $request->input('products.*.name');
 ```
+
+<br>
 
 ### 쿼리 스트링에서 입력값 조회하기
 ---
@@ -99,9 +111,13 @@ query 메소드를 호출할 때 아무런 인자를 전달하지 않는다면, 
 $query = $request->query();
 ```
 
+<br>
+
 ### 동적 속성을 통한 입력값 조회하기
 ---
-Illuminate\Http\Request 인스턴스의 동적 속성을 사용하여 사용자 입력에 엑세스할 수도 있습니다. 예를 들어 애플리케이션의 form 중에 하나가 name 필드를 가지고 있다면, 다음과 같이 필드의 값에 엑세스 할 수 있습니다:
+
+`Illuminate\Http\Request` 인스턴스의 동적 속성을 사용하여 사용자 입력에 엑세스할 수도 있습니다. 
+예를 들어 애플리케이션의 form 중에 하나가 name 필드를 가지고 있다면, 다음과 같이 필드의 값에 엑세스 할 수 있습니다:
 
 ```php
 $name = $request->name;
@@ -109,16 +125,24 @@ $name = $request->name;
 
 동적 속성을 사용할 때, 라라벨은 먼저 request payload 안에 있는 파라미터의 값을 찾습니다. 만약 값이 없다면 라라벨은 라우트 파라미터 안에 있는 필드를 찾을 것입니다.
 
+<br>
+
 ### JSON 입력 값 조회하기
 ---
-애플리케이션에 JSON 요청이 전달되어 Content-Type 헤더 속성이 application/json 으로 지정되어 있다면 input 메소드를 통해서 JSON 데이터에 접근할 수 있습니다. 또한 "점" 문법을 통해서 JSON 배열에 접근할 수도 있습니다.
+
+애플리케이션에 JSON 요청이 전달되어 Content-Type 헤더 속성이 application/json 으로 지정되어 있다면 input 메소드를 통해서 JSON 데이터에 접근할 수 있습니다. 
+
+또한 "점" 문법을 통해서 JSON 배열에 접근할 수도 있습니다.
 
 ```php
 $name = $request->input('user.name');
 ```
 
+<br>
+
 ###입력 데이터의 한 부분 조회하기
 ---
+
 입력 데이터의 일부분만 조회하기 위해서 only와 except 메소드를 사용할 수 있습니다. 이 두 메소드 모두 하나의 배열 또는 동적인 인자의 목록을 받아 들입니다:
 
 ```php
@@ -137,8 +161,11 @@ $input = $request->except('credit_card');
 $input = $request->intersect(['username', 'password']);
 ```
 
+<br>
+
 ### 입력값이 존재하는지 확인하기
 ---
+
 Request에 어떤 값이 존재하는지 확인하기 위해서 has 메소드를 사용해야 합니다. has 메소드는 현재 request 에서 값이 존재할 때 true를 반환합니다:
 
 ```php
@@ -163,8 +190,11 @@ if ($request->filled('name')) {
 }
 ```
 
+<br>
+
 ## 이전 입력값 확인하기
 ---
+
 라라벨은 한 request의 입력을 다음 request 중에도 유지할 수 있도록 해줍니다. 이 기능은 특히 유효성 검사 오류를 감지한 후 폼을 다시 채워 넣을 때 유용합니다. 하지만 라라벨에 포함된 유효성 검사 기능를 이용한다면 몇몇 유효성 검사 기능들이 자동으로 이 기능을 호출하기 때문에 수동으로 이 메소드들을 사용해야 할 가능성은 낮습니다.
 
 입력값을 세션에 임시 저장하기
@@ -182,8 +212,11 @@ $request->flashOnly(['username', 'email']);
 $request->flashExcept('password');
 ```
 
+<br>
+
 ## 입력값을 임시저장한 후 리다이렉트하기
 ---
+
 대부분 입력값을 세션에 임시 저장 하고 이전 페이지로 리다이렉트 하기를 원하기 때문에, 이를 위해 리다이렉트와 함께 입력값 임시 저장을 메소드 체이닝으로 사용할 수 있습니다.
 
 ```php
@@ -193,6 +226,8 @@ return redirect('form')->withInput(
     $request->except('password')
 );
 ```
+
+<br>
 
 ## 이전 입력값 조회하기
 ---
@@ -209,12 +244,19 @@ $username = $request->old('username');
 <input type="text" name="username" value="{{ old('username') }}">
 ```
 
+<br>
+
+
+
+
 ## 쿠키
 ---
 
 ### Request 에서 쿠키 조회하기
 
-라라벨 프레임워크에서 생성된 모든 쿠키는 인증 코드와 함께 암호화 됩니다. 이 것은 클라이언트가 변경되었을 때는, 쿠키가 유효하지 않다는 것을 의미합니다. Request에서 쿠키 값을 가져오기 위해서는 Illuminate\Http\Request 인스턴스에서 cookie 메소드를 사용하십시오:
+라라벨 프레임워크에서 생성된 모든 쿠키는 인증 코드와 함께 암호화 됩니다. 
+이 것은 클라이언트가 변경되었을 때는, 쿠키가 유효하지 않다는 것을 의미합니다. 
+Request에서 쿠키 값을 가져오기 위해서는 Illuminate\Http\Request 인스턴스에서 cookie 메소드를 사용하십시오:
 
 ```php
 $value = $request->cookie('name');
@@ -225,6 +267,8 @@ $value = $request->cookie('name');
 ```php
 $value = Cookie::get('name');
 ```
+
+<br>
 
 ## 쿠키를 Response 에 추가하기
 ---
@@ -252,8 +296,11 @@ Cookie::queue(Cookie::make('name', 'value', $minutes));
 Cookie::queue('name', 'value', $minutes);
 ```
 
+<br>
+
 ## 쿠키 인스턴스 생성하기
 ---
+
 나중에 response 인스턴스에 넣을 수 있는 Symfony\Component\HttpFoundation\Cookie인스턴스를 생성하려면, 글로벌 cookie 헬퍼 함수를 사용할 수 있습니다. 이 쿠키는 response 인스턴스에 첨부하지 않는 한 클라이언트에게 다시 보내지지 않습니다:
 
 ```php
