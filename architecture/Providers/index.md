@@ -1,3 +1,24 @@
+서비스 프로바이더
+소개하기
+서비스 프로바이더 작성하기
+Register 메소드
+Boot 메소드
+프로바이더 등록하기
+지연된 프로바이더
+
+## 소개하기
+---
+
+서비스 프로바이더는 라라벨 애플리케이션의 부팅(부트스트래핑)의 가장 핵심이라고 할 수 있습니다. 여러분의 애플리케이션과 마찬가지로 라라벨의 모든 코어 서비스는 서비스 프로바이더를 통해서 부트스트래핑 됩니다.
+
+그런데 "부트스트래핑" 이란 과연 무엇을 의미하는 것일까요? 일반적으로는 서비스 컨테이너에 바인딩을 등록하는 것을 포함해서 이벤트 리스너, 미들웨어 그리고 라우트등을 등록 하는 것을 의미합니다. 서비스 프로바이더는 애플리케이션 구성의 핵심입니다.
+
+라라벨에 포함되어 있는 config/app.php 파일을 열어 본다면 providers 배열을 볼 수 있을 것입니다. 배열 안에 있는 모든 서비스 프로바이더 클래스가 애플리케이션에 로드됩니다. 물론, 대부분의 프로바이더는 "지연된" 프로바이더입니다. 이 말은 모든 요청에 대해서 반드시 로드되지 않고 실제로 필요할 때에 로드 된다는 것을 의미합니다.
+
+여기에서는 서비스 프로바이더를 작성하는 방법과 라라벨 애플리케이션에 등록하는 방법을 배워봅시다.
+
+<br><br><br>
+
 ## 서비스 프로바이더 작성하기
 ---
 
@@ -129,3 +150,72 @@ public function boot(ResponseFactory $response)
 ```
 
 <br>
+
+<br><br><br>
+
+### 프로바이더 등록하기
+---
+
+모든 서비스 프로바이더들은 config/app.php 설정 파일에 등록되어 있습니다. 
+
+이 파일에는 서비스 프로바이더들의 클래스 이름을 나열하고 등록할 수 있는 providers 배열이 포함되어 있습니다. 기본적으로는 라라벨의 코어 서비스 프로바이더들이 배열에 나열되어 있습니다. 이 프로바이더들이 라라벨의 메일러, 큐, 캐시등과 같은 핵심적인 컴포넌트들을 부트스트랩핑 하게 됩니다.
+
+여러분의 프로바이더들을 등록하려면 이 배열에 추가 하면 됩니다:
+
+```php
+'providers' => [
+    // Other Service Providers
+    App\Providers\ComposerServiceProvider::class,
+],
+```
+
+<br><br><br>
+
+## 지연(deferred) 프로바이더
+만약 여러분의 프로바이더가 단지 서비스 컨테이너에 바인딩을 등록하기만 한다면, 등록된 바인딩이 실제로 필요할때까지 등록 자체를 지연(deferred) 시킬 수 있습니다. 이러한 프로바이더 로딩의 지연(deferred)은 모든 요청에 프로바이더를 파일 시스템에서 로드하지 않으므로 애플리케이션의 성능을 향상시킬 것입니다.
+
+라라벨은 지연된 서비스 프로바이더가 제공하는 모든 서비스 목록과 해당 서비스 프로바이더 클래스 이름을 컴파일하고 저장합니다. 그런 다음 이러한 서비스들 중 하나를 의존성 해결하려고 할 때에만, 라라벨이 서비스 프로바이더를 로드합니다.
+
+프로바이더를 지연(defer) 로딩 하려면 프로바이더의 defer 프로퍼티를 true로 설정하고 provides 메소드를 정의하면 됩니다. provides 메소드는 프로바이더에 의해서 바인딩이 등록된 서비스 컨테이너를 리턴해야 합니다:
+
+```php
+<?php
+
+namespace App\Providers;
+
+use Riak\Connection;
+use Illuminate\Support\ServiceProvider;
+
+class RiakServiceProvider extends ServiceProvider
+{
+    /**
+     * Indicates if loading of the provider is deferred.
+     *
+     * @var bool
+     */
+    protected $defer = true;
+
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->app->singleton(Connection::class, function ($app) {
+            return new Connection($app['config']['riak']);
+        });
+    }
+
+    /**
+     * Get the services provided by the provider.
+     *
+     * @return array
+     */
+    public function provides()
+    {
+        return [Connection::class];
+    }
+
+}
+```

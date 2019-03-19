@@ -48,19 +48,5 @@ submenus:
         link: /Laravel/Basic/Logging
 ---
 
-## 입력값 Trim 처리 & 일반화처리
----
 
-라라벨은 기본적으로 애플리케이션의 글로벌 미들웨어 스택에 TrimStrings 그리고 ConvertEmptyStringsToNull 미들웨어를 포함하고 있습니다. 
-
-이 미들웨어 목록은 `App\Http\Kernel` 클래스의 미들웨어 스택에 정의되어 있습니다. 
-
-이 미들웨어는 `request` 요청에 대해서 모든 문자 필드들을 자동으로 trim 처리합니다. 
-
-빈 문자필드는 null로 변환합니다. 
-
-
-따라서 라우트와 컨트롤러에서 이러한 일반화 문제를 걱정할 필요가 없습니다.
-
-이 동작 처리를 비활성화 하고자 한다면, `App\Http\Kernel` 클래스의 $middleware 속성에서 두 미들웨어를 제거하면 됩니다.
 

@@ -30,20 +30,3 @@ submenus:
         link: /Laravel/Concepts/Container/PSR-11
 ---
 
-
-## PSR-11
----
-
-라라벨의 서비스 컨테이너는 PSR-11 인터페이스를 따르고 있습니다. 따라서, PSR-11 인터페이스를 통하여  라라벨의 컨테이너에 접근이 가능합니다.
-
-```php
-use Psr\Container\ContainerInterface;
-
-Route::get('/', function (ContainerInterface $container) {
-    $service = $container->get('Service');
-
-    //
-});
-```
-
-{note} 만약 컨테이너에 명시적으로 선언되지 않은 서비스를 get 메서드로 호출 시 예외가 발생됩니다.

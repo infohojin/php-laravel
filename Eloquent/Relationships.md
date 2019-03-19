@@ -1,17 +1,11 @@
----
-layout: laravel
-title: Laravel
-subtitle: Prologue
-    
----
+# Eloquent: Relationships - 관계
 
-Eloquent: Relationships - 관계
 소개
 관계 정의하기
-1:1(일대일) 관계
-1:*(일대다) 관계
-1:*(일대다) 역관계
-*:*(다대다) 관계
+    1:1(일대일) 관계
+    1:*(일대다) 관계
+    1:*(일대다) 역관계
+    *:*(다대다) 관계
 연결을 통한 다수를 가지는 관계
 다형성 관계
 다대다 다형성 관계
@@ -21,11 +15,11 @@ Eloquent: Relationships - 관계
 관계된 모델이 존재하지 않는 것을 확인하며 질의하기
 연관된 모델 수량 확인하기-카운트
 Eager 로딩
-Eager 로딩 조건 제한하기
-지연 Eager 로딩
+    Eager 로딩 조건 제한하기
+    지연 Eager 로딩
 연관된 모델 삽입하기
-save 메소드
-create 메소드
+    save 메소드
+    create 메소드
 소속된 관계
 다대다 관계
 부모의 타임스탬프 값 갱신하기

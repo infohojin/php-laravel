@@ -6,29 +6,77 @@ cate:
     name: "서비스 컨테이너"
     link: "/Laravel/Concepts"
 
-submenus:
-    -
-        name: 설계컨셉
-        link: /Laravel/Concepts
 
-    -
-        name: 서비스 컨테이너
-        link: /Laravel/Concepts/Container
-
-    -
-        name: 바인딩
-        link: /Laravel/Concepts/Container/Binding
-    -
-        name: 의존성 해결
-        link: /Laravel/Concepts/Container/Resolving
-
-    -
-        name: 이벤트
-        link: /Laravel/Concepts/Container/Events
-    -
-        name: PSR-11
-        link: /Laravel/Concepts/Container/PSR-11
 ---
+
+## 서비스 컨테이너
+---
+
+디자인 패턴중에서 어플리케이션 클래스의 인스턴스를 관리하는 패턴동작이 있습니다. `instance pool`은 클래스의 인스턴스를 배열로 저장후, 필요할 때마다 이를 재사용 하는 패턴 입니다.
+라라벨은 이러한 인스턴스풀, 다른말로 `register`라고도 합니다. 이를 `컨테이너`라는 용어로 사용을 합니다.  
+
+또한 이러한 클래스의 인스턴스를 관리하고, 상호 접근을 위하여 의존성을 주입합니다. 
+
+라라벨의 내부 코드컨셉을 이해하기 위해서는 클래스의 의존성 및 주입에 대한 지식이 필요로 합니다. 그리고 라라벨은 클래스의 의존성을 관리하고, 의존성 주입을 위하여 컨테이너 개념을 사용합니다.
+
+의존성 주입이란? 클래스간의 의존성은 클래스 생성될 때 또는 경우에 따라 "setter" 메소드에 의해서 "주입" 된다는 의미입니다.
+
+간단한 예제코드를 통하여 자세히 알아 봅니다:
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\User;
+use App\Repositories\UserRepository;
+use App\Http\Controllers\Controller;
+
+class UserController extends Controller
+{
+    /**
+     * The user repository implementation.
+     *
+     * @var UserRepository
+     */
+    protected $users;
+
+    /**
+     * Create a new controller instance.
+     *
+     * @param  UserRepository  $users
+     * @return void
+     */
+    public function __construct(UserRepository $users)
+    {
+        $this->users = $users;
+    }
+
+    /**
+     * Show the profile for the given user.
+     *
+     * @param  int  $id
+     * @return Response
+     */
+    public function show($id)
+    {
+        $user = $this->users->find($id);
+
+        return view('user.profile', ['user' => $user]);
+    }
+}
+```
+
+위의 예제 코드는 `UserController` 클래스의 소스 일부 입니다. `show()` 메소드는 DB에 있는 사용자 정보를 조회하는 코드들이 같이 들어가 있습니다.
+즉 `show()` 메소드는 `user`클래스를 접근할 수 있는 인스턴스가 필요로 합니다.
+
+`user` 인스턴스는 `UserRepository`타입으로 `Eloquent`를 통하여 데이터베이스에 접속하여 사용자 정보를 조회합니다. 이렇게 가능한 것은 처음 `__construct()` 생성자에서
+인스턴스를 인자로 전달받아 내부 프로퍼티에 저장을 해두었기 때문입니다.
+
+이렇게 전달받은 인스턴스 인자를 통하여 접근을 할 수 있도록 하는 것이 의존성 주입입니다.
+
+<br><br><br>
+
 
 ## 바인딩
 ---
@@ -205,4 +253,128 @@ $this->app->extend(Service::class, function($service) {
     return new DecoratedService($service);
 });
 ```
+
+<br><br><br>
+
+
+## 의존성 해결
+---
+
+<br>
+
+### make 메소드
+---
+
+컨테이너 밖에서 클래스 인스턴스에 대한 의존성을 해결하기 위해서 make 메소드를 사용할 수 있습니다. 
+`make()` 메소드는 의존성 해결을 위하여 클래스나 인터페이스 이름을 전달 받습니다. 사용방법은 다음과 같습니다:
+
+```php
+$api = $this->app->make('HelpSpot\API');
+```
+
+만일 $app 변수에 접근권한이 없는 경우에는 별로도 제공되는 `resolve` 헬퍼 함수를 통하여 처리 할 수 있습니다. 다음은 렐퍼함수의 예 입니다.
+
+```php
+$api = resolve('HelpSpot\API');
+```
+
+위의 두가지 방법으로도 클래스의 의존성이 컨테이너를 통해서 해결될 수 없을때는, `makeWith` 메소드에 관련된 인자를 배열로 전달 할 수도 있습니다:
+
+```php
+$api = $this->app->makeWith('HelpSpot\API', ['id' => 1]);
+```
+
+<br>
+
+### 자동 주입
+---
+
+앞서 이야기한 방법과 다르게, 그리고 가장 중요한 방법은 
+컨트롤러, 이벤트 리스너, queue jobs, 미들웨어 그리고 다른 곳에서도 클래스의 생성자에 "타입-힌트" 를 선언함으로써 컨테이너가 의존성을 해결할 수 있도록 하는 것입니다. 
+실제로는 이 방법이 개발에서 컨테이너에 의해서 객체의 의존성을 해결되어야 하는 데 가장 많이 사용되는 방법입니다.
+
+예를 들어 컨트롤러의 생성자에서 타입 힌트로 지정된 Repository를 정의했다고 가정해 보겠습니다. 
+해당 Repository는 자동으로 의존성이 해결되어 클래스에 주입될 것입니다.
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Users\Repository as UserRepository;
+
+class UserController extends Controller
+{
+    /**
+     * The user repository instance.
+     */
+    protected $users;
+
+    /**
+     * Create a new controller instance.
+     *
+     * @param  UserRepository  $users
+     * @return void
+     */
+    public function __construct(UserRepository $users)
+    {
+        $this->users = $users;
+    }
+
+    /**
+     * Show the user with the given ID.
+     *
+     * @param  int  $id
+     * @return Response
+     */
+    public function show($id)
+    {
+        //
+    }
+}
+```
+
+
+
+<br><br><br>
+
+
+## 컨테이너 이벤트
+---
+
+서비스 컨테이너는 객체의 의존성 해결을 수행할 때 마다 이벤트를 발생시킵니다. `resolving` 메소드를 사용하여 이 이벤트들에 대응할 수 있습니다.
+
+```php
+$this->app->resolving(function ($object, $app) {
+    // Called when container resolves object of any type...
+});
+
+$this->app->resolving(HelpSpot\API::class, function ($api, $app) {
+    // Called when container resolves objects of type "HelpSpot\API"...
+});
+```
+
+위의 예제를 통하여 의존성이 해결된 객체가 콜백에 전달되어 질때 최종적으로 객체를 필요로 하는 대상에 전달하기 전에 추가적으로 객체의 속성을 설정 할 수 있습니다.
+
+
+<br><br><br>
+
+
+## PSR-11
+---
+
+라라벨의 서비스 컨테이너는 PSR-11 인터페이스를 따르고 있습니다. 따라서, PSR-11 인터페이스를 통하여  라라벨의 컨테이너에 접근이 가능합니다.
+
+```php
+use Psr\Container\ContainerInterface;
+
+Route::get('/', function (ContainerInterface $container) {
+    $service = $container->get('Service');
+
+    //
+});
+```
+
+{note} 만약 컨테이너에 명시적으로 선언되지 않은 서비스를 get 메서드로 호출 시 예외가 발생됩니다.
+
 
